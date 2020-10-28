@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 public class PharmacieController {
+
     @Autowired
     private IPharmacie pharmaciedao;
 
@@ -20,24 +21,46 @@ public class PharmacieController {
 
     //ajout pharmacie
     @PostMapping(value = "/Pharmacie/add")
-    public void ajouterPharmacie(@RequestBody Pharmacie pharmacie) {
+    public String ajouterPharmacie(@RequestBody Pharmacie pharmacie) {
         /* @RequestBody Cette annotation demande à Spring que le JSON contenu dans
         // la partie body de la requête HTTP soit converti en objet Java.*/
-        pharmaciedao.save(pharmacie);
+        try {
+            pharmaciedao.save(pharmacie);
+            return "Ajout reuisit!!!!!";
+
+
+        }catch (Exception e){
+
+            return "Erreur d'insertion!!!!!";
+
+        }
     }
 
-    //update pharmacie
-    @PostMapping(value = "/Pharmacie/edit")
-    public void editPharmacie(@RequestBody Pharmacie pharmacie) {
-        pharmaciedao.save(pharmacie);
+    // update pharmacie
+    @PutMapping("/Pharmacie/edit/{id}")
+    public String updatePharmacie(@RequestBody Pharmacie pharmacie, @PathVariable("id") int id) {
+
+        try {
+            Pharmacie existingPharmacie = pharmaciedao.getOne(id);
+
+            existingPharmacie.setEtat(pharmacie.getEtat());
+            existingPharmacie.setNom(pharmacie.getNom());
+            existingPharmacie.setQuartier(pharmacie.getQuartier());
+
+            pharmaciedao.save(existingPharmacie);
+
+            return "Modification reuisit!!!!!";
+
+        } catch (Exception e) {
+
+            return "Modification erreur !!!!!";        }
+
     }
 
-    //delete pharmacie
-    @GetMapping(value = "/Pharmacie/delete/{id}")
+    //delete pharmacie by id
+    @DeleteMapping(value = "/Pharmacie/delete/{id}")
     public void deletePharmacie(@PathVariable("id") int id) {
-        Pharmacie pharmacie = new Pharmacie();
-        pharmacie = pharmaciedao.getOne(id);
-        pharmaciedao.delete(pharmacie);
+        pharmaciedao.deleteById(id);
     }
 
 }
